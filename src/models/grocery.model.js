@@ -56,8 +56,9 @@ module.exports = (sequelize) => {
       sequelize,
       modelName: 'Grocery',
       tableName: 'groceries',
+      paranoid: true,
       indexes: [
-        { unique: true, fields: ['name'] },
+        { unique: true, fields: ['name'], where: { deleted_at: null } },
         { fields: ['category'] },
         { fields: ['is_active'] },
       ],

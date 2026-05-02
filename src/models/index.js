@@ -17,8 +17,8 @@ Order.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Order.hasMany(OrderItem, { foreignKey: 'orderId', as: 'items', onDelete: 'CASCADE' });
 OrderItem.belongsTo(Order, { foreignKey: 'orderId', as: 'order' });
 
-Grocery.hasMany(OrderItem, { foreignKey: 'groceryId', as: 'orderItems' });
-OrderItem.belongsTo(Grocery, { foreignKey: 'groceryId', as: 'grocery' });
+Grocery.hasMany(OrderItem, { foreignKey: 'groceryId', as: 'orderItems', onDelete: 'RESTRICT' });
+OrderItem.belongsTo(Grocery, { foreignKey: 'groceryId', as: 'grocery', onDelete: 'RESTRICT' });
 
 module.exports = {
   sequelize,
