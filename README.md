@@ -460,7 +460,3 @@ If this were extended for production beyond the scope of the assessment, these w
 - **Observability** - Prometheus metrics, OpenTelemetry tracing, structured request IDs
 
 ---
-
-## License
-
-ISC. Created as a take-home assessment for QuestionPro.
