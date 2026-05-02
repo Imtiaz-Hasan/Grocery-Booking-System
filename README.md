@@ -12,7 +12,7 @@ A production-grade RESTful backend for a grocery booking system, built with **No
 2. [Tech Stack](#tech-stack)
 3. [Architecture & Project Structure](#architecture--project-structure)
 4. [Database Schema](#database-schema)
-5. [Quick Start (Docker — Recommended)](#quick-start-docker--recommended)
+5. [Quick Start (Docker - Recommended)](#quick-start-docker--recommended)
 6. [Quick Start (Local without Docker)](#quick-start-local-without-docker)
 7. [Environment Variables](#environment-variables)
 8. [API Reference](#api-reference)
@@ -26,8 +26,8 @@ A production-grade RESTful backend for a grocery booking system, built with **No
 ## Features
 
 ### Roles
-- **Admin** — manage the catalog and inventory.
-- **User** — browse the catalog and place multi-item orders.
+- **Admin** - manage the catalog and inventory.
+- **User** - browse the catalog and place multi-item orders.
 
 ### Admin Capabilities
 - Add new grocery items
@@ -44,7 +44,7 @@ A production-grade RESTful backend for a grocery booking system, built with **No
 - View order history & order details
 
 ### Engineering Highlights
-- **Layered architecture** — routes → middleware → controllers → services/models
+- **Layered architecture** - routes → middleware → controllers → services/models
 - **JWT auth** with role-based middleware (`authorize('admin')`)
 - **Joi** request validation (body, query, params)
 - **Atomic order placement** with `SELECT … FOR UPDATE` row locks (no overselling under concurrent orders)
@@ -184,7 +184,7 @@ errorHandler (Sequelize → ApiError) → JSON response
 
 ---
 
-## Quick Start (Docker — Recommended)
+## Quick Start (Docker - Recommended)
 
 ### Prerequisites
 - Docker Desktop (Linux containers) / Docker Engine 24+
@@ -204,8 +204,8 @@ docker compose up --build -d
 ```
 
 This brings up:
-- `grocery_db` — PostgreSQL 16 (port `5432`)
-- `grocery_api` — Node.js API on port `3000`
+- `grocery_db` - PostgreSQL 16 (port `5432`)
+- `grocery_api` - Node.js API on port `3000`
 
 The API auto-creates tables (`sync({ alter: true })` in dev) and bootstraps a default admin on first run.
 
@@ -297,11 +297,11 @@ docker compose down -v         # also remove the postgres volume
 ### Auth
 | Method | Path             | Auth | Body                                    | Description                |
 | ------ | ---------------- | ---- | --------------------------------------- | -------------------------- |
-| POST   | `/auth/register` | —    | `{ name, email, password }`             | Register a regular user    |
-| POST   | `/auth/login`    | —    | `{ email, password }`                   | Returns `{ user, token }`  |
-| GET    | `/auth/me`       | ✅   | —                                       | Current authenticated user |
+| POST   | `/auth/register` | -    | `{ name, email, password }`             | Register a regular user    |
+| POST   | `/auth/login`    | -    | `{ email, password }`                   | Returns `{ user, token }`  |
+| GET    | `/auth/me`       | ✅   | -                                       | Current authenticated user |
 
-### Groceries — User-facing
+### Groceries - User-facing
 | Method | Path                | Auth | Description                                          |
 | ------ | ------------------- | ---- | ---------------------------------------------------- |
 | GET    | `/groceries`        | ✅   | List active groceries (paginated, filterable)        |
@@ -309,7 +309,7 @@ docker compose down -v         # also remove the postgres volume
 
 **Query params** (list): `page`, `limit`, `search`, `category`, `inStock`, `sortBy` (`name`/`price`/`stock`/`createdAt`), `sortOrder` (`asc`/`desc`).
 
-### Groceries — Admin
+### Groceries - Admin
 | Method | Path                              | Auth | Description                          |
 | ------ | --------------------------------- | ---- | ------------------------------------ |
 | POST   | `/groceries`                      | 🔒admin | Create grocery                    |
@@ -323,14 +323,14 @@ docker compose down -v         # also remove the postgres volume
 { "operation": "set" | "increment" | "decrement", "quantity": 50 }
 ```
 
-### Orders — User
+### Orders - User
 | Method | Path           | Auth | Body                              | Description                       |
 | ------ | -------------- | ---- | --------------------------------- | --------------------------------- |
 | POST   | `/orders`      | ✅   | `{ items: [{ groceryId, quantity }] }` | Place a multi-item order   |
-| GET    | `/orders`      | ✅   | —                                 | My order history (paginated)      |
-| GET    | `/orders/:id`  | ✅   | —                                 | My single order                   |
+| GET    | `/orders`      | ✅   | -                                 | My order history (paginated)      |
+| GET    | `/orders/:id`  | ✅   | -                                 | My single order                   |
 
-### Orders — Admin
+### Orders - Admin
 | Method | Path                  | Auth   | Description           |
 | ------ | --------------------- | ------ | --------------------- |
 | GET    | `/orders/admin/all`   | 🔒admin | All orders + buyer  |
@@ -365,22 +365,22 @@ Placing an order is a **single database transaction**. The transaction:
 2. Validates that every item exists, is active, and has sufficient stock.
 3. Decrements stock atomically.
 4. Creates the `order` row and bulk-inserts `order_items`.
-5. Commits — or rolls back the entire change on any failure.
+5. Commits - or rolls back the entire change on any failure.
 
 Because the rows are locked for the duration of the transaction, two simultaneous orders for the same item cannot both pass the stock check; the second waits for the first to commit and re-reads the updated stock. **Overselling is prevented under concurrent load.**
 
-`order_items` snapshots `unit_price` and `item_name` at booking time — historical orders are immutable to later catalog edits.
+`order_items` snapshots `unit_price` and `item_name` at booking time - historical orders are immutable to later catalog edits.
 
 ---
 
 ## Security Considerations
 
-- **Password hashing** — `bcrypt` with configurable salt rounds (default 10).
-- **JWT** — HS256, configurable secret, configurable TTL. Tokens carry `sub` (user id) and `role` only.
-- **Helmet** — sensible secure HTTP headers by default.
-- **Rate limiting** — per-IP sliding window across the API surface.
-- **Input validation** — every body / query / params payload is validated with Joi before reaching a controller.
-- **Sequelize parameterised queries** — protection against SQL injection.
+- **Password hashing** - `bcrypt` with configurable salt rounds (default 10).
+- **JWT** - HS256, configurable secret, configurable TTL. Tokens carry `sub` (user id) and `role` only.
+- **Helmet** - sensible secure HTTP headers by default.
+- **Rate limiting** - per-IP sliding window across the API surface.
+- **Input validation** - every body / query / params payload is validated with Joi before reaching a controller.
+- **Sequelize parameterised queries** - protection against SQL injection.
 - **No `x-powered-by`** header.
 - **Non-root container user** (`app`) and **Tini** as PID 1 for proper signal handling.
 - Sensitive fields (`password`) are stripped via `User.toJSON()`.
@@ -457,7 +457,7 @@ If this were extended for production beyond the scope of the assessment, these w
 - **Sequelize migrations via Umzug/CLI** (instead of `sync`) for production schema control
 - **Integration tests** with a disposable Postgres (Testcontainers) covering the order race condition
 - **CI pipeline** (GitHub Actions) running lint + tests + image build
-- **Observability** — Prometheus metrics, OpenTelemetry tracing, structured request IDs
+- **Observability** - Prometheus metrics, OpenTelemetry tracing, structured request IDs
 
 ---
 
